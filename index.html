@@ -881,33 +881,38 @@
       background: #fff;
       border: 1px solid var(--neutral-200);
       border-radius: 12px;
-      padding: 24px;
       box-shadow: var(--shadow-card);
-      position: relative;
       overflow: hidden;
     }
-    .branch-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 3px;
+    .branch-card-img {
+      aspect-ratio: 3 / 4;
+      width: 100%;
+      object-fit: cover;
+      display: block;
     }
-    .branch-card.accent-coral::before   { background: var(--coral); }
-    .branch-card.accent-teal::before    { background: var(--teal-600); }
-    .branch-card.accent-violet::before  { background: var(--violet-500); }
+    .branch-card-body {
+      padding: 24px;
+    }
+    .branch-card-bar {
+      width: 32px;
+      height: 3px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .branch-card.accent-coral .branch-card-bar  { background: var(--coral); }
+    .branch-card.accent-teal .branch-card-bar   { background: var(--teal-600); }
+    .branch-card.accent-violet .branch-card-bar { background: var(--violet-500); }
     .branch-card h3 {
       font-size: 16px;
       font-weight: 700;
       letter-spacing: -0.3px;
       color: var(--neutral-900);
       margin-bottom: 8px;
-      padding-left: 4px;
     }
     .branch-card p {
       font-size: 14px;
       color: var(--neutral-500);
       line-height: 1.6;
-      padding-left: 4px;
     }
 
     /* ── 8. Footer CTA ─────────────────────────────────────────── */
@@ -1468,23 +1473,39 @@
       <div class="branches-grid">
 
         <div class="branch-card accent-coral reveal reveal-d2">
-          <h3>Technische groothandels</h3>
-          <p>ETIM en productspecificaties op schaal</p>
+          <img class="branch-card-img" src="images/branches/technische-groothandels.png" alt="Technische groothandels" />
+          <div class="branch-card-body">
+            <div class="branch-card-bar"></div>
+            <h3>Technische groothandels</h3>
+            <p>ETIM en productspecificaties op schaal</p>
+          </div>
         </div>
 
         <div class="branch-card accent-teal reveal reveal-d3">
-          <h3>Retail</h3>
-          <p>Voor klanten die de beste ervaring willen</p>
+          <img class="branch-card-img" src="images/branches/retail.png" alt="Retail" />
+          <div class="branch-card-body">
+            <div class="branch-card-bar"></div>
+            <h3>Retail</h3>
+            <p>Voor klanten die de beste ervaring willen</p>
+          </div>
         </div>
 
         <div class="branch-card accent-violet reveal reveal-d4">
-          <h3>Werkkleding &amp; PBM</h3>
-          <p>Voor passend online productadvies</p>
+          <img class="branch-card-img" src="images/branches/werkkleding-pbm.png" alt="Werkkleding &amp; PBM" />
+          <div class="branch-card-body">
+            <div class="branch-card-bar"></div>
+            <h3>Werkkleding &amp; PBM</h3>
+            <p>Voor passend online productadvies</p>
+          </div>
         </div>
 
         <div class="branch-card accent-coral reveal reveal-d5">
-          <h3>Groothandels</h3>
-          <p>Als schaal de uitdaging is</p>
+          <img class="branch-card-img" src="images/branches/groothandels.png" alt="Groothandels" />
+          <div class="branch-card-body">
+            <div class="branch-card-bar"></div>
+            <h3>Groothandels</h3>
+            <p>Als schaal de uitdaging is</p>
+          </div>
         </div>
 
       </div>
