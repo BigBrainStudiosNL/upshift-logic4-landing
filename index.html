@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upshift × Logic4 — Nu nog sneller producten toevoegen</title>
+  <meta name="description" content="Zullen we het machinewerk vanaf nu aan de machines laten? Upshift automatiseert productdata voor Logic4-gebruikers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --violet-500: #7C5CFC;
+      --coral: #E10E5B;
+      --coral-hover: #C20A4E;
+      --teal-600: #14B8A6;
+      --teal-500: #2DD4BF;
+      --neutral-50:  #FAFAFC;
+      --neutral-100: #F4F3F7;
+      --neutral-200: #E8E6EE;
+      --neutral-300: #D5D2DE;
+      --neutral-400: #B3AEBF;
+      --neutral-500: #8F899E;
+      --neutral-600: #6B6580;
+      --neutral-700: #504B63;
+      --neutral-900: #231F33;
+      --neutral-950: #13111E;
+      --gradient-brand-h: linear-gradient(90deg, #7C5CFC, #E10E5B, #2DD4BF);
+      --gradient-brand-d: linear-gradient(135deg, #7C5CFC, #E10E5B, #2DD4BF);
+      --shadow-card: 0 1px 3px rgba(41,36,106,0.06), 0 1px 2px rgba(41,36,106,0.04);
+      --shadow-card-hover: 0 4px 12px rgba(41,36,106,0.1), 0 2px 4px rgba(41,36,106,0.06);
+      --shadow-xs: 0 1px 2px rgba(41,36,106,0.05);
+      --shadow-button: 0 1px 2px rgba(41,36,106,0.1);
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--neutral-900);
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── Utilities ─────────────────────────────────────────────── */
+    .overline {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .section-h2 {
+      font-weight: 800;
+      font-size: clamp(32px, 3.5vw, 44px);
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      color: var(--neutral-900);
+      margin-bottom: 56px;
+    }
+    .gradient-text {
+      background: var(--gradient-brand-h);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 96px 80px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1;
+      padding: 13px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--coral);
+      color: #fff;
+      box-shadow: var(--shadow-button);
+    }
+    .btn-primary:hover { background: var(--coral-hover); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--neutral-700);
+      border: 1px solid var(--neutral-300);
+      box-shadow: var(--shadow-button);
+    }
+    .btn-secondary:hover { border-color: var(--neutral-400); color: var(--neutral-900); }
+    .btn-ghost-dark {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-ghost-dark:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); }
+
+    /* ── Reveal animation ─────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 60ms; }
+    .reveal-d2 { transition-delay: 120ms; }
+    .reveal-d3 { transition-delay: 180ms; }
+    .reveal-d4 { transition-delay: 240ms; }
+    .reveal-d5 { transition-delay: 300ms; }
+    .reveal-d6 { transition-delay: 360ms; }
+
+    /* ── 1. Nav ────────────────────────────────────────────────── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      transition: box-shadow 0.2s ease;
+    }
+    .site-nav.scrolled {
+      box-shadow: 0 2px 16px rgba(41,36,106,0.08);
+    }
+    .nav-left { flex: 1; }
+    .nav-logo { height: 22px; width: auto; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-collab-label {
+      font-size: 12px;
+      color: var(--neutral-400);
+      font-weight: 400;
+    }
+    .nav-partner-logo { height: 22px; width: auto; }
+
+    /* ── 2. Hero ───────────────────────────────────────────────── */
+    .hero {
+      background: #fff;
+      padding: 144px 80px 96px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; width: 100%; }
+    .hero-gradient-line {
+      width: 64px;
+      height: 3px;
+      background: var(--gradient-brand-h);
+      border-radius: 2px;
+      margin-bottom: 32px;
+    }
+    .hero-overline {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+      background: var(--gradient-brand-h);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    .hero-h1 {
+      font-weight: 800;
+      font-size: clamp(40px, 5.5vw, 72px);
+      letter-spacing: -2px;
+      line-height: 1.05;
+      max-width: 780px;
+      margin-bottom: 24px;
+      color: var(--neutral-900);
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--neutral-500);
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: 99px;
+      padding: 10px 20px;
+      font-size: 12px;
+      color: var(--neutral-400);
+    }
+    .hero-badge img { height: 20px; width: auto; }
+
+    /* ── 3. Logo Bar ───────────────────────────────────────────── */
+    .logo-bar {
+      background: #fff;
+      border-bottom: 1px solid var(--neutral-200);
+      padding: 48px 0;
+      overflow: hidden;
+    }
+    .logo-bar-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--neutral-400);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo-bar-track-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    .logo-bar-track-wrap::before,
+    .logo-bar-track-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 80px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .logo-bar-track-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, #fff 0%, transparent 100%);
+    }
+    .logo-bar-track-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, #fff 0%, transparent 100%);
+    }
+    @keyframes scroll-logos {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .logo-bar-track {
+      display: flex;
+      align-items: center;
+      animation: scroll-logos 30s linear infinite;
+      width: max-content;
+    }
+    .logo-bar-track:hover { animation-play-state: paused; }
+    .logo-item {
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+    }
+    .logo-item img {
+      height: 28px;
+      width: auto;
+      filter: grayscale(1);
+      opacity: 0.4;
+      transition: opacity 0.2s ease;
+    }
+    .logo-item:hover img { opacity: 0.7; }
+
+    /* ── 4. Problem Section ────────────────────────────────────── */
+    .problem-section {
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .problem-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 12px;
+      box-shadow: var(--shadow-card);
+      padding: 28px;
+    }
+    .problem-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(225, 14, 91, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .problem-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--coral);
+    }
+    .problem-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--neutral-900);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .problem-card p {
+      font-size: 14px;
+      color: var(--neutral-500);
+      line-height: 1.6;
+    }
+
+    /* ── 5. Feature Cards Section ──────────────────────────────── */
+    .features-section {
+      background: #fff;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 12px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      transition: box-shadow 0.2s ease;
+    }
+    .feature-card:hover { box-shadow: var(--shadow-card-hover); }
+    .feature-card-top {
+      height: 180px;
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+    .feature-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(225, 14, 91, 0.1);
+      color: var(--coral);
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+    .feature-card-bottom { padding: 24px; }
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .feature-icon-coral { background: rgba(225,14,91,0.08); }
+    .feature-icon-coral svg { stroke: var(--coral); }
+    .feature-icon-teal { background: rgba(20,184,166,0.08); }
+    .feature-icon-teal svg { stroke: var(--teal-600); }
+    .feature-icon-violet { background: rgba(124,92,252,0.08); }
+    .feature-icon-violet svg { stroke: var(--violet-500); }
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--neutral-900);
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--neutral-500);
+      line-height: 1.6;
+    }
+
+    /* ── Mockup shared ─────────────────────────────────────────── */
+    .mockup {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--neutral-200);
+      overflow: hidden;
+      box-shadow: var(--shadow-xs);
+      width: 100%;
+      max-width: 280px;
+      height: 130px;
+    }
+    .mockup-bar {
+      height: 28px;
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+    }
+    .mockup-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--neutral-300);
+      flex-shrink: 0;
+    }
+    .url-bar-fake {
+      flex: 1;
+      height: 11px;
+      background: #eeeff2;
+      border-radius: 6px;
+      margin-left: 6px;
+    }
+
+    /* ── Mockup 1 — Classificatie ──────────────────────────────── */
+    #mock-1 .mockup-body {
+      padding: 4px 8px;
+    }
+    #mock-1 table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #mock-1 thead th {
+      font-size: 7px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-bottom: 4px;
+      text-align: left;
+    }
+    #mock-1 tbody td {
+      padding: 2px;
+      vertical-align: middle;
+    }
+    .mc-stub {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .mc-stub-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      flex-shrink: 0;
+    }
+    .mc-stub-bar {
+      height: 5px;
+      border-radius: 3px;
+      background: #e5e7eb;
+    }
+    .mc1-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 14px;
+      padding: 0 6px;
+      border-radius: 4px;
+      font-size: 7.5px;
+      font-weight: 600;
+      background: rgba(225,14,91,0.11);
+      color: #c4084f;
+      white-space: nowrap;
+      transform: scaleX(0);
+      opacity: 0;
+      transform-origin: left center;
+    }
+
+    /* ── Mockup 2 — Productkoppelingen ─────────────────────────── */
+    .mk2-scene {
+      position: relative;
+      height: calc(100% - 28px);
+    }
+    .mk2-card {
+      position: absolute;
+      width: 31%;
+      height: 96px;
+      top: 3px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mk2-card:nth-child(1) { left: 0%; }
+    .mk2-card:nth-child(2) { left: 34.5%; }
+    .mk2-card:nth-child(3) { left: 69%; }
+    .mk-img {
+      height: 42px;
+      background: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mk-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      opacity: 0.75;
+    }
+    .mk-info {
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mk-p1 {
+      height: 4px;
+      border-radius: 2px;
+      width: 80%;
+    }
+    .mk-p2 {
+      height: 4px;
+      border-radius: 2px;
+      background: #e5e7eb;
+      width: 55%;
+    }
+    .mk-swatch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 5px 5px 6px;
+    }
+    .mk-sdot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    #mk2-selector {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    /* ── Mockup 3 — Tekstgeneratie ─────────────────────────────── */
+    .mt-body {
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      height: calc(100% - 28px);
+    }
+    .mt-product-img {
+      width: 52px;
+      height: 66px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      border: 1px solid #e5e7eb;
+      background: linear-gradient(140deg, #eceef5, #dde0e9);
+    }
+    .mt-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .mt3-line {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      border-radius: 3px;
+    }
+    #mt3-cta {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      height: 16px;
+      width: 54px;
+      border-radius: 4px;
+      background: rgba(124,92,252,0.12);
+    }
+
+    /* ── Mockup 4 — SEO ────────────────────────────────────────── */
+    .ms-body { padding: 8px; }
+    .ms-search-bar {
+      height: 17px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 5px;
+      margin-bottom: 7px;
+    }
+    .ms-search-icon {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1.5px solid #d1d5db;
+      flex-shrink: 0;
+    }
+    .ms-search-text {
+      height: 4px;
+      border-radius: 2px;
+      background: #e5e7eb;
+      width: 70px;
+    }
+    .ms-result {
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      padding: 7px 8px;
+    }
+    #ms4-urlrow {
+      opacity: 0;
+      transform: translateY(3px);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 3px;
+    }
+    .ms-favicon {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: rgba(225,14,91,0.22);
+      flex-shrink: 0;
+    }
+    .ms-crumb {
+      font-size: 7.5px;
+      color: #6b7280;
+    }
+    #ms4-title {
+      opacity: 0;
+      transform: translateY(3px);
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #1a73e8;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    .ms-desc-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    #ms4-desc1 {
+      opacity: 0;
+      transform: translateY(3px);
+      width: 95%;
+      height: 5px;
+      border-radius: 2.5px;
+      background: #e5e7eb;
+    }
+    #ms4-desc2 {
+      opacity: 0;
+      transform: translateY(3px);
+      width: 68%;
+      height: 5px;
+      border-radius: 2.5px;
+      background: #e5e7eb;
+    }
+
+    /* ── Mockup 5 — Vertaling ──────────────────────────────────── */
+    .mv-body {
+      padding: 7px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      height: calc(100% - 28px);
+    }
+    .mv-lang-header {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .mv-lang-chip {
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    .mv-lang-chip.mv-active {
+      background: rgba(20,184,166,0.1);
+      color: #0d9488;
+    }
+    #mv5-arrow {
+      font-size: 10px;
+      color: rgba(20,184,166,0.8);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .mv-panels {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    .mv-panel {
+      flex: 1;
+      border-radius: 5px;
+      padding: 6px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .mv-panel.mv-source {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .mv-panel.mv-target {
+      background: rgba(20,184,166,0.04);
+      border: 1px solid rgba(20,184,166,0.2);
+    }
+    .mv-t-line {
+      height: 4px;
+      border-radius: 2px;
+      background: #e5e7eb;
+    }
+    .mv5-line {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(20,184,166,0.25);
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { transform: translateX(0); color: rgba(20,184,166,0.8); }
+      50%       { transform: translateX(3px); color: rgba(20,184,166,1); }
+    }
+
+    /* ── Mockup 6 — PDF ────────────────────────────────────────── */
+    .mpdf-bar-filename {
+      font-size: 7.5px;
+      color: #9ca3af;
+      font-family: monospace;
+      margin-left: 6px;
+    }
+    .mpdf-body {
+      height: calc(100% - 28px);
+      position: relative;
+      overflow: hidden;
+      padding: 0 8px 5px;
+    }
+    .mpdf-brand-stripe {
+      height: 3px;
+      background: linear-gradient(90deg, #e10e5b 0%, rgba(225,14,91,0.4) 100%);
+      margin: 0 -8px 5px;
+    }
+    .mpdf-doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .mpdf-doc-code {
+      font-size: 9px;
+      font-weight: 700;
+      color: #111827;
+      letter-spacing: -0.02em;
+    }
+    .mpdf-doc-sub {
+      font-size: 6.5px;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+    .mpdf-doc-logo {
+      width: 26px;
+      height: 7px;
+      border-radius: 2px;
+      background: #e5e7eb;
+    }
+    .mpdf-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5px 3px;
+      border-radius: 3px;
+      margin: 0 -3px;
+      transition: background 0.2s ease;
+    }
+    .mpdf-label {
+      font-size: 7px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    .mpdf-value {
+      font-size: 7px;
+      font-weight: 600;
+      color: #374151;
+      transition: color 0.3s ease;
+    }
+    .mpdf-scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #e10e5b 25%, #e10e5b 75%, transparent);
+      box-shadow: 0 0 6px rgba(225,14,91,0.6), 0 0 14px rgba(225,14,91,0.3);
+      top: -2px;
+      opacity: 0;
+    }
+    @keyframes scan-move-pdf {
+      0%  { top: 0; opacity: 1; }
+      88% { opacity: 1; }
+      100%{ top: calc(100% - 1px); opacity: 0; }
+    }
+    .mpdf-scan-line.active {
+      animation: scan-move-pdf 2.2s ease-in-out forwards;
+    }
+
+    /* ── 6. Quote Section ──────────────────────────────────────── */
+    .quote-section { background: var(--neutral-50); }
+    .quote-card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .quote-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--coral);
+    }
+    .quote-mark {
+      display: block;
+      font-size: 64px;
+      font-weight: 800;
+      color: var(--violet-500);
+      opacity: 0.12;
+      line-height: 1;
+      margin-bottom: -16px;
+    }
+    .quote-text {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--neutral-600);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+    .quote-divider {
+      border: none;
+      border-top: 1px solid var(--neutral-200);
+      margin-bottom: 20px;
+    }
+    .quote-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .quote-author-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--neutral-200);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .quote-author-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-900);
+    }
+    .quote-author-role {
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-top: 2px;
+    }
+
+    /* ── 7. Branches Section ───────────────────────────────────── */
+    .branches-section { background: #fff; }
+    .branches-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .branch-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .branch-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 3px;
+    }
+    .branch-card.accent-coral::before   { background: var(--coral); }
+    .branch-card.accent-teal::before    { background: var(--teal-600); }
+    .branch-card.accent-violet::before  { background: var(--violet-500); }
+    .branch-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--neutral-900);
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+    .branch-card p {
+      font-size: 14px;
+      color: var(--neutral-500);
+      line-height: 1.6;
+      padding-left: 4px;
+    }
+
+    /* ── 8. Footer CTA ─────────────────────────────────────────── */
+    .footer-cta {
+      background: var(--neutral-950);
+      padding: 96px 80px;
+      text-align: center;
+    }
+    .footer-cta-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .footer-cta-overline {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+      background: var(--gradient-brand-h);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .footer-cta h2 {
+      font-weight: 800;
+      font-size: clamp(32px, 3.5vw, 44px);
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .footer-cta p {
+      font-size: 17px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 40px;
+    }
+    .footer-cta-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .footer-cta-link {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.18s ease;
+    }
+    .footer-cta-link:hover { color: rgba(255,255,255,0.6); }
+
+    /* ── 9. Small Footer ───────────────────────────────────────── */
+    .site-footer {
+      background: var(--neutral-950);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 48px;
+    }
+    .site-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .site-footer p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.2);
+    }
+    .footer-contact {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .footer-contact a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      transition: color 0.18s ease;
+    }
+    .footer-contact a:hover { color: rgba(255,255,255,0.8); }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .problem-grid  { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .branches-grid { grid-template-columns: repeat(2, 1fr); }
+      .section-inner { padding: 72px 40px; }
+      .hero { padding: 128px 40px 80px; }
+    }
+
+    @media (max-width: 768px) {
+      .problem-grid  { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .branches-grid { grid-template-columns: 1fr; }
+      .section-inner { padding: 56px 24px; }
+
+      .site-nav { padding: 0 20px; }
+      .nav-collab-label { display: none; }
+
+      .hero { padding: 100px 24px 64px; }
+      .hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: 300px;
+      }
+      .hero-ctas .btn { width: 100%; text-align: center; justify-content: center; }
+
+      .footer-cta { padding: 64px 24px; }
+      .footer-cta-btns { flex-direction: column; align-items: center; }
+      .footer-cta-btns .btn { width: 100%; max-width: 300px; justify-content: center; }
+
+      .site-footer { padding: 20px 24px; }
+      .site-footer-inner { flex-direction: column; text-align: center; }
+      .footer-contact { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ 1. NAV ══════════════════════════════════════════════════ -->
+  <nav class="site-nav" id="site-nav">
+    <div class="nav-left">
+      <a href="https://upshift.today">
+        <img
+          class="nav-logo"
+          src="https://upshift.today/images/logos/upshift-colour.svg"
+          alt="Upshift"
+        />
+      </a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-collab-label">In samenwerking met</span>
+      <img
+        class="nav-partner-logo"
+        src="images/logic4-logo.png"
+        alt="Logic4"
+      />
+    </div>
+  </nav>
+
+  <!-- ══ 2. HERO ═════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-gradient-line reveal"></div>
+      <span class="hero-overline reveal reveal-d1">Upshift × Logic4</span>
+      <h1 class="hero-h1 reveal reveal-d2">
+        Nu nog sneller producten toevoegen aan Logic4.
+      </h1>
+      <p class="hero-subtitle reveal reveal-d3">
+        Zullen we het machinewerk vanaf nu aan de machines laten?
+      </p>
+      <div class="hero-ctas reveal reveal-d4">
+        <a href="https://upshift.today/demonstratie" class="btn btn-primary">Live demonstratie</a>
+        <a href="https://upshift.today" class="btn btn-secondary">Meer weten</a>
+      </div>
+      <div class="hero-badge reveal reveal-d5">
+        <span>In samenwerking met</span>
+        <img src="images/logic4-logo.png" alt="Logic4" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 3. LOGO BAR ═════════════════════════════════════════════ -->
+  <div class="logo-bar">
+    <p class="logo-bar-label">Vertrouwd door klanten en partners</p>
+    <div class="logo-bar-track-wrap">
+      <div class="logo-bar-track">
+        <!-- First set -->
+        <div class="logo-item"><img src="https://upshift.today/images/logos/kokenenwonen.webp" alt="Koken en Wonen" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/shopify.svg" alt="Shopify" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/skwirrel.svg" alt="Skwirrel" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/1groothandel.png" alt="1Groothandel" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/gs1.svg" alt="GS1" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/woocommerce.svg" alt="WooCommerce" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/delftechniek.svg" alt="Delftechniek" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/logic4.png" alt="Logic4" /></div>
+        <!-- Duplicate set for seamless loop -->
+        <div class="logo-item"><img src="https://upshift.today/images/logos/kokenenwonen.webp" alt="Koken en Wonen" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/shopify.svg" alt="Shopify" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/skwirrel.svg" alt="Skwirrel" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/1groothandel.png" alt="1Groothandel" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/gs1.svg" alt="GS1" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/woocommerce.svg" alt="WooCommerce" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/delftechniek.svg" alt="Delftechniek" /></div>
+        <div class="logo-item"><img src="https://upshift.today/images/logos/logic4.png" alt="Logic4" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. PROBLEM SECTION ══════════════════════════════════════ -->
+  <section class="problem-section">
+    <div class="section-inner">
+      <span class="overline reveal" style="color: var(--coral);">Het Probleem</span>
+      <h2 class="section-h2 reveal reveal-d1">Herken je dit?</h2>
+      <div class="problem-grid">
+
+        <div class="problem-card reveal reveal-d2">
+          <div class="problem-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h3>Tientallen leveranciersbestanden, ieder een andere structuur.</h3>
+          <p>Elk bestand heeft zijn eigen kolommen, veldnamen en formats. Dat kost tijd om te vertalen.</p>
+        </div>
+
+        <div class="problem-card reveal reveal-d3">
+          <div class="problem-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Handmatig invoeren kost dagen, en fouten sluipen erin.</h3>
+          <p>Productinvoer is repetitief en foutgevoelig. Dat gaat ten koste van je team en je kwaliteit.</p>
+        </div>
+
+        <div class="problem-card reveal reveal-d4">
+          <div class="problem-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+              <polyline points="17 6 23 6 23 12"/>
+            </svg>
+          </div>
+          <h3>Productdata die niet klopt, kost je omzet en klanten.</h3>
+          <p>Incomplete of onjuiste productdata leidt tot returns, klantklachten en lagere conversie.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5. FEATURE CARDS SECTION ════════════════════════════════ -->
+  <section class="features-section">
+    <div class="section-inner">
+      <span class="overline reveal" style="color: var(--teal-600);">Functionaliteiten</span>
+      <h2 class="section-h2 reveal reveal-d1">Alles wat je nodig hebt, direct in Logic4</h2>
+      <div class="features-grid">
+
+        <!-- Card 1: Classificatie -->
+        <div class="feature-card reveal reveal-d1">
+          <div class="feature-card-top">
+            <!-- Mockup 1 -->
+            <div class="mockup" id="mock-1">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="url-bar-fake"></div>
+              </div>
+              <div class="mockup-body">
+                <table>
+                  <thead id="mc1-thead" style="opacity:0; transition: opacity 300ms ease 20ms;">
+                    <tr>
+                      <th>Product</th>
+                      <th>Categorie</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><div class="mc-stub"><div class="mc-stub-dot"></div><div class="mc-stub-bar" style="width:72px"></div></div></td>
+                      <td><span class="mc1-tag">Stroomkabel</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="mc-stub"><div class="mc-stub-dot"></div><div class="mc-stub-bar" style="width:56px"></div></div></td>
+                      <td><span class="mc1-tag">Schakelaar</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="mc-stub"><div class="mc-stub-dot"></div><div class="mc-stub-bar" style="width:64px"></div></div></td>
+                      <td><span class="mc1-tag">Verbinder</span></td>
+                    </tr>
+                    <tr>
+                      <td><div class="mc-stub"><div class="mc-stub-dot"></div><div class="mc-stub-bar" style="width:50px"></div></div></td>
+                      <td><span class="mc1-tag">Aansluitklem</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-coral">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h3>Classificatie &amp; Categorisatie</h3>
+            <p>Wijs automatisch productgroepen en specificaties toe aan elk artikel in je assortiment.</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Productkoppelingen -->
+        <div class="feature-card reveal reveal-d2">
+          <div class="feature-card-top">
+            <!-- Mockup 2 -->
+            <div class="mockup" id="mock-2">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="url-bar-fake"></div>
+              </div>
+              <div class="mk2-scene">
+                <!-- Card 1 (gray) -->
+                <div class="mk2-card">
+                  <div class="mk-img"><div class="mk-swatch" style="background:#94A3B8;"></div></div>
+                  <div class="mk-info">
+                    <div class="mk-p1" style="background:#e5e7eb;"></div>
+                    <div class="mk-p2"></div>
+                  </div>
+                </div>
+                <!-- Card 2 (teal) - center -->
+                <div class="mk2-card">
+                  <div class="mk-img"><div class="mk-swatch" style="background:rgba(20,184,166,0.75);"></div></div>
+                  <div class="mk-info">
+                    <div class="mk-p1" style="background:rgba(20,184,166,.3);"></div>
+                    <div class="mk-p2"></div>
+                  </div>
+                  <div id="mk2-selector">
+                    <div class="mk-swatch-row">
+                      <div class="mk-sdot" style="background:#94a3b8; outline: 1.5px solid #e5e7eb; outline-offset: 1px;"></div>
+                      <div class="mk-sdot" style="background:rgba(20,184,166,.85); outline: 1.5px solid #14b8a6; outline-offset: 1px;"></div>
+                      <div class="mk-sdot" style="background:#7c5cfc; outline: 1.5px solid #e5e7eb; outline-offset: 1px;"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Card 3 (violet) -->
+                <div class="mk2-card">
+                  <div class="mk-img"><div class="mk-swatch" style="background:#7C5CFC;"></div></div>
+                  <div class="mk-info">
+                    <div class="mk-p1" style="background:#e5e7eb;"></div>
+                    <div class="mk-p2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="17 1 21 5 17 9"/>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                <polyline points="7 23 3 19 7 15"/>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              </svg>
+            </div>
+            <h3>Productkoppelingen</h3>
+            <p>Groepeer automatisch maten, kleuren en uitvoeringen tot overzichtelijke productfamilies.</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Tekstgeneratie -->
+        <div class="feature-card reveal reveal-d3">
+          <div class="feature-card-top">
+            <!-- Mockup 3 -->
+            <div class="mockup" id="mock-3">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="url-bar-fake"></div>
+              </div>
+              <div class="mt-body">
+                <div class="mt-product-img"></div>
+                <div class="mt-content">
+                  <div class="mt3-line" style="height:7px; background:rgba(124,92,252,.3); width:90%;"></div>
+                  <div class="mt3-line" style="height:5px; background:#e5e7eb; width:88%;"></div>
+                  <div class="mt3-line" style="height:5px; background:#e5e7eb; width:96%;"></div>
+                  <div class="mt3-line" style="height:5px; background:#e5e7eb; width:82%;"></div>
+                  <div class="mt3-line" style="height:5px; background:#e5e7eb; width:65%;"></div>
+                  <div id="mt3-cta"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-violet">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </div>
+            <h3>Tekstgeneratie</h3>
+            <p>Genereer SEO-geoptimaliseerde producttitels en omschrijvingen met AI die jouw tone of voice kent.</p>
+          </div>
+        </div>
+
+        <!-- Card 4: SEO-velden -->
+        <div class="feature-card reveal reveal-d4">
+          <div class="feature-card-top">
+            <!-- Mockup 4 -->
+            <div class="mockup" id="mock-4">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="url-bar-fake"></div>
+              </div>
+              <div class="ms-body">
+                <div class="ms-search-bar">
+                  <div class="ms-search-icon"></div>
+                  <div class="ms-search-text"></div>
+                </div>
+                <div class="ms-result">
+                  <div id="ms4-urlrow">
+                    <div class="ms-favicon"></div>
+                    <span class="ms-crumb">webshop.nl › producten › kabels</span>
+                  </div>
+                  <div id="ms4-title">
+                    CABW Kabel 3×1.5mm² — <span style="color:#c4084f">Flexibel</span>
+                  </div>
+                  <div class="ms-desc-lines">
+                    <div id="ms4-desc1"></div>
+                    <div id="ms4-desc2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-coral">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h3>SEO-velden</h3>
+            <p>Automatisch meta-titels, beschrijvingen en URL-slugs voor elk product in je assortiment.</p>
+          </div>
+        </div>
+
+        <!-- Card 5: Vertaling -->
+        <div class="feature-card reveal reveal-d5">
+          <div class="feature-card-top">
+            <span class="feature-badge">Binnenkort</span>
+            <!-- Mockup 5 -->
+            <div class="mockup" id="mock-5">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="url-bar-fake"></div>
+              </div>
+              <div class="mv-body">
+                <div class="mv-lang-header">
+                  <span class="mv-lang-chip">NL</span>
+                  <span id="mv5-arrow">→</span>
+                  <span class="mv-lang-chip mv-active">DE</span>
+                </div>
+                <div class="mv-panels">
+                  <div class="mv-panel mv-source">
+                    <div class="mv-t-line" style="width:90%"></div>
+                    <div class="mv-t-line" style="width:82%"></div>
+                    <div class="mv-t-line" style="width:96%"></div>
+                    <div class="mv-t-line" style="width:62%"></div>
+                  </div>
+                  <div class="mv-panel mv-target">
+                    <div class="mv5-line" style="width:88%"></div>
+                    <div class="mv5-line" style="width:96%"></div>
+                    <div class="mv5-line" style="width:80%"></div>
+                    <div class="mv5-line" style="width:58%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <h3>Vertaling</h3>
+            <p>Vertaal productteksten automatisch naar meerdere talen met behoud van kwaliteit.</p>
+          </div>
+        </div>
+
+        <!-- Card 6: Data-extractie uit PDFs -->
+        <div class="feature-card reveal reveal-d6">
+          <div class="feature-card-top">
+            <span class="feature-badge">Beschikbaar in Q2</span>
+            <!-- Mockup 6 -->
+            <div class="mockup" id="mock-6">
+              <div class="mockup-bar">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <span class="mpdf-bar-filename">datablad-CABW-3x1.5.pdf</span>
+              </div>
+              <div class="mpdf-body">
+                <div class="mpdf-brand-stripe"></div>
+                <div class="mpdf-doc-header">
+                  <div>
+                    <span class="mpdf-doc-code">CABW 3×1.5mm²</span>
+                    <div class="mpdf-doc-sub">Stroomkabel flexibel — H05VV-F</div>
+                  </div>
+                  <div class="mpdf-doc-logo"></div>
+                </div>
+                <div class="mpdf-row"><span class="mpdf-label">Spanning</span><span class="mpdf-value">450/750V</span></div>
+                <div class="mpdf-row"><span class="mpdf-label">Geleider</span><span class="mpdf-value">Cu kl. 5</span></div>
+                <div class="mpdf-row"><span class="mpdf-label">Doorsnede</span><span class="mpdf-value">3×1.5mm²</span></div>
+                <div class="mpdf-row"><span class="mpdf-label">Kleur</span><span class="mpdf-value">Zwart</span></div>
+                <div class="mpdf-row"><span class="mpdf-label">Gewicht</span><span class="mpdf-value">95 g/m</span></div>
+                <div class="mpdf-scan-line"></div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-card-bottom">
+            <div class="feature-icon feature-icon-coral">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <h3>Data-extractie uit PDFs</h3>
+            <p>Haal productdata automatisch uit leveranciers-PDFs, catalogi en technische documenten.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 6. QUOTE SECTION ════════════════════════════════════════ -->
+  <section class="quote-section">
+    <div class="section-inner" style="text-align:center;">
+      <span class="overline reveal" style="color: var(--violet-500);">Waar we het voor doen</span>
+      <h2 class="section-h2 reveal reveal-d1" style="text-align:center;">In onze eigen woorden</h2>
+      <div class="quote-card reveal reveal-d2">
+        <span class="quote-mark" style="text-align:left;">"</span>
+        <p class="quote-text">
+          Uit mijn eigen ervaring als e-commercemanager weet ik hoe lastig het kan zijn om een grote productcatalogus bij te houden. Met Upshift hebben we hiervoor een oplossing gebouwd. Zo word je niet alleen efficiënter, maar zorg je met betere productdata voor een goede gebruikservaring en meer omzet.
+        </p>
+        <hr class="quote-divider" />
+        <div class="quote-author">
+          <img class="quote-author-img" src="images/jetse.png" alt="Jetse Mooij" />
+          <div>
+            <p class="quote-author-name">Jetse Mooij</p>
+            <p class="quote-author-role">Oprichter, Upshift</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 7. BRANCHES SECTION ═════════════════════════════════════ -->
+  <section class="branches-section">
+    <div class="section-inner">
+      <span class="overline reveal" style="color: var(--violet-500);">Branches</span>
+      <h2 class="section-h2 reveal reveal-d1">Gebouwd voor jouw sector</h2>
+      <div class="branches-grid">
+
+        <div class="branch-card accent-coral reveal reveal-d2">
+          <h3>Technische groothandels</h3>
+          <p>ETIM en productspecificaties op schaal</p>
+        </div>
+
+        <div class="branch-card accent-teal reveal reveal-d3">
+          <h3>Retail</h3>
+          <p>Voor klanten die de beste ervaring willen</p>
+        </div>
+
+        <div class="branch-card accent-violet reveal reveal-d4">
+          <h3>Werkkleding &amp; PBM</h3>
+          <p>Voor passend online productadvies</p>
+        </div>
+
+        <div class="branch-card accent-coral reveal reveal-d5">
+          <h3>Groothandels</h3>
+          <p>Als schaal de uitdaging is</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 8. FOOTER CTA ═══════════════════════════════════════════ -->
+  <section class="footer-cta">
+    <div class="footer-cta-inner">
+      <span class="footer-cta-overline">Klaar om te starten?</span>
+      <h2>Zelf zien hoe het werkt?</h2>
+      <p>Vraag een gratis demonstratie aan en ontdek wat Upshift voor jouw productdata kan doen.</p>
+      <div class="footer-cta-btns">
+        <a href="https://upshift.today/demonstratie" class="btn btn-primary">Live demonstratie</a>
+        <a href="https://upshift.today/contact" class="btn btn-ghost-dark">Neem contact op</a>
+      </div>
+      <a href="https://upshift.today" class="footer-cta-link">Ga naar upshift.today →</a>
+    </div>
+  </section>
+
+  <!-- ══ 9. SMALL FOOTER ═════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <img
+        src="https://upshift.today/images/logos/upshift-white.svg"
+        alt="Upshift"
+        style="height:22px; width:auto;"
+      />
+      <p>© 2026 Upshift. Alle rechten voorbehouden.</p>
+      <div class="footer-contact">
+        <a href="tel:0617139729">06 17 13 97 29</a>
+        <a href="mailto:info@upshift.today">info@upshift.today</a>
+        <a href="https://upshift.today">upshift.today →</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══ JAVASCRIPT ══════════════════════════════════════════════ -->
+  <script>
+    // ── 1. Nav scroll shadow ──────────────────────────────────────
+    const nav = document.getElementById('site-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // ── 2. Reveal animation ───────────────────────────────────────
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // ── 3. Mockup setup helper ────────────────────────────────────
+    function setupMockup(containerId, visibleMs, onTriggered) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      let alive = true;
+      const timers = [];
+      const obs = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        obs.disconnect();
+        (function cycle() {
+          onTriggered(true);
+          timers.push(setTimeout(() => {
+            onTriggered(false);
+            if (alive) timers.push(setTimeout(cycle, 800));
+          }, visibleMs));
+        })();
+      }, { threshold: 0.3 });
+      obs.observe(container);
+    }
+
+    // ── Mock 1 — Classificatie ────────────────────────────────────
+    setupMockup('mock-1', 2800, (triggered) => {
+      const thead = document.getElementById('mc1-thead');
+      const tags  = document.querySelectorAll('.mc1-tag');
+      if (triggered) {
+        thead.style.opacity = '1';
+        thead.style.transition = 'opacity 300ms ease 20ms';
+        const delays = [80, 230, 380, 530];
+        tags.forEach((tag, i) => {
+          tag.style.transition = `transform 320ms cubic-bezier(.34,1.3,.64,1) ${delays[i]}ms, opacity 320ms cubic-bezier(.34,1.3,.64,1) ${delays[i]}ms`;
+          tag.style.transform  = 'scaleX(1)';
+          tag.style.opacity    = '1';
+        });
+      } else {
+        thead.style.transition = 'none';
+        thead.style.opacity    = '0';
+        tags.forEach(tag => {
+          tag.style.transition = 'none';
+          tag.style.transform  = 'scaleX(0)';
+          tag.style.opacity    = '0';
+        });
+      }
+    });
+
+    // ── Mock 2 — Productkoppelingen ───────────────────────────────
+    setupMockup('mock-2', 3000, (triggered) => {
+      const cards    = document.querySelectorAll('#mock-2 .mk2-card');
+      const selector = document.getElementById('mk2-selector');
+      if (triggered) {
+        // Spread cards outward
+        cards[0].style.transition = 'transform 600ms cubic-bezier(.4,0,.2,1), opacity 450ms ease 200ms';
+        cards[0].style.transform  = 'translateX(-34.5%)';
+        cards[0].style.opacity    = '0';
+
+        cards[2].style.transition = 'transform 600ms cubic-bezier(.4,0,.2,1), opacity 450ms ease 200ms';
+        cards[2].style.transform  = 'translateX(34.5%)';
+        cards[2].style.opacity    = '0';
+
+        // Highlight center card
+        cards[1].style.transition  = 'box-shadow 400ms ease 400ms';
+        cards[1].style.boxShadow   = '0 4px 16px rgba(20,184,166,.25)';
+
+        // Show selector
+        selector.style.transition  = 'max-height 400ms ease 700ms, opacity 300ms ease 720ms';
+        selector.style.maxHeight   = '32px';
+        selector.style.opacity     = '1';
+        selector.style.overflow    = 'hidden';
+      } else {
+        cards[0].style.transition = 'none';
+        cards[0].style.transform  = '';
+        cards[0].style.opacity    = '';
+
+        cards[2].style.transition = 'none';
+        cards[2].style.transform  = '';
+        cards[2].style.opacity    = '';
+
+        cards[1].style.transition = 'none';
+        cards[1].style.boxShadow  = '';
+
+        selector.style.transition = 'none';
+        selector.style.maxHeight  = '0';
+        selector.style.opacity    = '0';
+      }
+    });
+
+    // ── Mock 3 — Tekstgeneratie ───────────────────────────────────
+    setupMockup('mock-3', 3200, (triggered) => {
+      const lines = document.querySelectorAll('.mt3-line');
+      const cta   = document.getElementById('mt3-cta');
+      const delays = [60, 180, 300, 420, 540];
+      if (triggered) {
+        lines.forEach((line, i) => {
+          line.style.transition = `max-height 260ms ease-out ${delays[i]}ms, opacity 200ms ease ${delays[i]}ms`;
+          line.style.maxHeight  = '9px';
+          line.style.opacity    = '1';
+          line.style.overflow   = 'hidden';
+        });
+        cta.style.transition = 'max-height 300ms ease 700ms, opacity 250ms ease 720ms';
+        cta.style.maxHeight  = '18px';
+        cta.style.opacity    = '1';
+        cta.style.overflow   = 'hidden';
+      } else {
+        lines.forEach(line => {
+          line.style.transition = 'none';
+          line.style.maxHeight  = '0';
+          line.style.opacity    = '0';
+        });
+        cta.style.transition = 'none';
+        cta.style.maxHeight  = '0';
+        cta.style.opacity    = '0';
+      }
+    });
+
+    // ── Mock 4 — SEO ──────────────────────────────────────────────
+    setupMockup('mock-4', 2800, (triggered) => {
+      const els    = ['ms4-urlrow','ms4-title','ms4-desc1','ms4-desc2'].map(id => document.getElementById(id));
+      const delays = [80, 280, 480, 580];
+      if (triggered) {
+        els.forEach((el, i) => {
+          el.style.transition = `opacity 350ms ease ${delays[i]}ms, transform 350ms ease ${delays[i]}ms`;
+          el.style.opacity    = '1';
+          el.style.transform  = 'none';
+        });
+      } else {
+        els.forEach(el => {
+          el.style.transition = 'none';
+          el.style.opacity    = '0';
+          el.style.transform  = 'translateY(3px)';
+        });
+      }
+    });
+
+    // ── Mock 5 — Vertaling ────────────────────────────────────────
+    setupMockup('mock-5', 3200, (triggered) => {
+      const lines = document.querySelectorAll('.mv5-line');
+      const arrow = document.getElementById('mv5-arrow');
+      const delays = [280, 400, 520, 640];
+      if (triggered) {
+        lines.forEach((line, i) => {
+          line.style.transition = `max-height 300ms ease ${delays[i]}ms, opacity 250ms ease ${delays[i]}ms`;
+          line.style.maxHeight  = '6px';
+          line.style.opacity    = '1';
+          line.style.overflow   = 'hidden';
+        });
+        arrow.style.animation = 'pulse-arrow 600ms ease 100ms';
+      } else {
+        lines.forEach(line => {
+          line.style.transition = 'none';
+          line.style.maxHeight  = '0';
+          line.style.opacity    = '0';
+        });
+        arrow.style.animation = 'none';
+      }
+    });
+
+    // ── Mock 6 — PDF extraction ───────────────────────────────────
+    (function() {
+      const container = document.getElementById('mock-6');
+      if (!container) return;
+
+      const scanLine = container.querySelector('.mpdf-scan-line');
+      const rows     = container.querySelectorAll('.mpdf-row');
+      const values   = container.querySelectorAll('.mpdf-value');
+      const timers   = [];
+
+      function resetState() {
+        scanLine.classList.remove('active');
+        rows.forEach(row   => { row.style.background   = ''; });
+        values.forEach(val => { val.style.color         = '#374151'; });
+      }
+
+      function runCycle() {
+        resetState();
+        // Force reflow so animation restarts cleanly
+        void scanLine.offsetWidth;
+        scanLine.classList.add('active');
+
+        const totalDuration = 2200;
+        rows.forEach((row, i) => {
+          const hitAt = (totalDuration / 5) * (i + 0.5);
+          timers.push(setTimeout(() => {
+            row.style.background = 'rgba(225,14,91,.09)';
+          }, hitAt));
+          timers.push(setTimeout(() => {
+            values[i].style.color = '#c4084f';
+          }, hitAt + 380));
+        });
+
+        timers.push(setTimeout(() => {
+          scanLine.classList.remove('active');
+          timers.push(setTimeout(runCycle, 800));
+        }, 3800));
+      }
+
+      const obs = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        obs.disconnect();
+        runCycle();
+      }, { threshold: 0.3 });
+      obs.observe(container);
+    })();
+  </script>
+
+</body>
+</html>
