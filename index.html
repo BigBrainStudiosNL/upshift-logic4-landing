@@ -831,67 +831,43 @@
 
     /* ── 6. Quote Section ──────────────────────────────────────── */
     .quote-section { background: var(--neutral-50); }
-    .quote-card {
-      max-width: 680px;
+    .testimonial-single-inner {
+      max-width: 640px;
       margin: 0 auto;
-      background: #fff;
-      border: 1px solid var(--neutral-200);
-      border-radius: 12px;
-      padding: 32px;
-      box-shadow: var(--shadow-card);
-      position: relative;
-      overflow: hidden;
     }
-    .quote-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--coral);
+    .testimonial-single-quote {
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.6;
+      color: var(--neutral-700);
+      border-left: 3px solid var(--teal-600);
+      padding-left: 24px;
+      text-align: left;
+      margin-bottom: 28px;
     }
-    .quote-mark {
-      display: block;
-      font-size: 64px;
-      font-weight: 800;
-      color: var(--violet-500);
-      opacity: 0.12;
-      line-height: 1;
-      margin-bottom: -16px;
-    }
-    .quote-text {
-      font-size: 17px;
-      line-height: 1.7;
-      color: var(--neutral-600);
-      font-style: italic;
-      margin-bottom: 24px;
-    }
-    .quote-divider {
-      border: none;
-      border-top: 1px solid var(--neutral-200);
-      margin-bottom: 20px;
-    }
-    .quote-author {
+    .testimonial-single-author {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
+      padding-left: 27px;
     }
-    .quote-author-img {
-      width: 48px;
-      height: 48px;
+    .testimonial-single-author img {
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       border: 1px solid var(--neutral-200);
       object-fit: cover;
       flex-shrink: 0;
     }
-    .quote-author-name {
-      font-size: 14px;
-      font-weight: 600;
+    .testimonial-single-author-info h4 {
+      font-size: 15px;
+      font-weight: 700;
       color: var(--neutral-900);
+      margin-bottom: 2px;
     }
-    .quote-author-role {
-      font-size: 12px;
-      color: var(--neutral-400);
-      margin-top: 2px;
+    .testimonial-single-author-info p {
+      font-size: 13px;
+      color: var(--neutral-500);
     }
 
     /* ── 7. Branches Section ───────────────────────────────────── */
@@ -1471,18 +1447,13 @@
   <section class="quote-section">
     <div class="section-inner" style="text-align:center;">
       <span class="overline reveal" style="color: var(--violet-500);">Waar we het voor doen</span>
-      <h2 class="section-h2 reveal reveal-d1" style="text-align:center;">In onze eigen woorden</h2>
-      <div class="quote-card reveal reveal-d2">
-        <span class="quote-mark" style="text-align:left;">"</span>
-        <p class="quote-text">
-          Uit mijn eigen ervaring als e-commercemanager weet ik hoe lastig het kan zijn om een grote productcatalogus bij te houden. Met Upshift hebben we hiervoor een oplossing gebouwd. Zo word je niet alleen efficiënter, maar zorg je met betere productdata voor een goede gebruikservaring en meer omzet.
-        </p>
-        <hr class="quote-divider" />
-        <div class="quote-author">
-          <img class="quote-author-img" src="images/jetse.png" alt="Jetse Mooij" />
-          <div>
-            <p class="quote-author-name">Jetse Mooij</p>
-            <p class="quote-author-role">Oprichter, Upshift</p>
+      <div class="testimonial-single-inner reveal reveal-d1">
+        <p class="testimonial-single-quote">"Uit mijn eigen ervaring als e-commercemanager weet ik hoe lastig het kan zijn om een grote productcatalogus bij te houden. Met Upshift hebben we hiervoor een oplossing gebouwd. Zo word je niet alleen efficiënter, maar zorg je met betere productdata voor een goede gebruikservaring en meer omzet."</p>
+        <div class="testimonial-single-author">
+          <img src="images/jetse.png" alt="Jetse Mooij" />
+          <div class="testimonial-single-author-info">
+            <h4>Jetse Mooij</h4>
+            <p>Oprichter, Upshift</p>
           </div>
         </div>
       </div>
